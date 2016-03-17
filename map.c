@@ -1,0 +1,140 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   map.c                                              :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: amanchon <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2016/03/09 13:41:16 by amanchon          #+#    #+#             */
+/*   Updated: 2016/03/16 15:15:07 by embailla         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include <stdio.h>
+#include "fillit.h"
+
+t_map		*new_map(int size)
+{
+	int		i;
+
+	i = 0;
+	t_map	*map;
+	if (!(map = (t_map*)malloc(sizeof(t_map))))
+		return (NULL);
+	map->size = size;
+	if (!(map->data = (char**)malloc(sizeof(char*) * size + 1)))
+		return (NULL);
+	while (i < size)
+	{
+		if (!(map->data[i] = (char*)malloc(sizeof(char) * size + 1)))
+			return (NULL);
+		ft_memset(map->data[i], '.', size);
+		map->data[i][size] = '\0';
+		i++;
+	}
+	map->data[i] = NULL;
+	return (map);
+}
+
+void		free_map(t_map **map)
+{
+	int		i;
+
+	i = 0;
+	if (*map)
+	{
+		if ((*map)->data)
+		{
+			while (i < (*map)->size)
+			{
+				free((*map)->data[i]);
+				i++;
+			}
+			free((*map)->data);
+			(*map)->data = NULL;
+		}
+		free(*map);
+		*map = NULL;
+	}
+}
+
+void		print_map(t_map *map)
+{
+	int		x;
+
+	x = 0;
+	while (x < map->size)
+	{
+		ft_putnbr(x);
+		ft_putstr("--");
+		ft_putendl(map->data[x]);
+		x++;
+	}
+}
+
+int		place_tetri(t_tetri *t, t_map *m, t_point *p)
+{
+	int		i;
+	int		j;
+	i = 0;
+	i = 0;
+	while (i < t->height/* && p->x + i < m->size*/)
+	{
+		j = 0;
+		while (j < t->width/* && p->y + j < m->size*/)
+		{
+			if (t->buffer[i][j] == '#'
+				&& (m->data[p->x + i][p->y + j] == '#'
+				|| m->data[p->x + i][p->y + j] == '\0'))
+			{
+				free(p);
+				ft_putendl("Can't place tetri");
+				return (0);
+			}
+			j++;
+		}
+		i++;
+	}
+	set_value(t, m, p, '#');
+	return (1);
+}
+
+int		set_value(t_tetri *t, t_map *m, t_point *p, char c)
+{
+	int		i;
+	int		j;
+
+	p = NULL;
+	i = 0;
+	while (i < /*t->height*/ 3 && p->x + i < m->size)
+	{
+		j = 0;
+		while (j < /*t->width*/2 && p->y + j < m->size)
+		{
+			printf("pos = [%d,%d]\n", p->x + i, p->y + j);
+			if (t->buffer[i][j] != '.'
+				&& t->buffer[i][j] != '\0')
+			{
+				printf("setting pos = [%d,%d]\n", p->x + i, p->y + j);
+				m->data[p->x + i][p->y + j] = c;
+			}
+			j++;
+		}
+		i++;
+	}
+	free(p);
+	return (0);
+}
+/*
+int main()
+{
+	t_map *map = new_map(3);
+	t_tetri *t = new_tetri(".#\n##\n#.", 'A');
+	t_tetri *t2 = new_tetri(".#\n##\n#.", 'A');
+	place_tetri(t, map, new_point(0,0));
+	set_value(t, map, new_point(0, 0), '.');
+	place_tetri(t, map, new_point(0,0));
+	print_map(map);
+	free_map(&map);
+	//getchar("press any key to close");
+}*/
